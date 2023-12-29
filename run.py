@@ -306,7 +306,6 @@ fingerprint.unauthorized = unauthorized
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.username_pw_set(config['mqtt']['user'], config['mqtt']['pass'])
 client.connect(config['mqtt']['host'], 1883, 60)
 client.loop_forever()
 
