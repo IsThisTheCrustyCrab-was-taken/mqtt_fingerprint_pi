@@ -257,6 +257,7 @@ def foundfinger(f_id, confidence):
                 device_publish['action'] = "timeout"
     client.publish("fingerprint/finger", json.dumps(device_publish))
 
+
 def unauthorized():
     fingerprint.unauthorized_count += 1
     to_publish = {
@@ -268,6 +269,7 @@ def unauthorized():
         'confidence': 0,
     }
     client.publish("fingerprint/finger", json.dumps(to_publish))
+
 
 def updatedtemplates():
     devices_list = []
@@ -297,15 +299,18 @@ def updatedtemplates():
 
 with open('config.yaml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
-
-fingerprint = Fingerprint(config['serial'])
+fingerprint = None
 client = mqtt.Client()
-fingerprint.found_finger = foundfinger
-fingerprint.updated_templates = updatedtemplates
-fingerprint.unauthorized = unauthorized
-client.on_connect = on_connect
-client.on_message = on_message
 
-client.connect(config['mqtt']['host'], 1883, 60)
-client.loop_forever()
 
+def run(_fingerprint):
+    global fingerprint, client
+    _fingerprint.found_finger = foundfinger
+    _fingerprint.updated_templates = updatedtemplates
+    _fingerprint.unauthorized = unauthorized
+    fingerprint = _fingerprint
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    client.connect(config['mqtt']['host'], 1883, 60)
+    client.loop_forever()
